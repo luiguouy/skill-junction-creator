@@ -30,15 +30,18 @@ skill-junction-creator/
 
 ### 1. 准备您的 Skill 仓库
 在您的电脑上创建一个统一存放 Skill 的文件夹（例如 `D:\AI_Workspace\SKILL`），并在此文件夹下放置您的各个自定义技能：
+
+例如：
 ```text
 D:\AI_Workspace\SKILL/
 ├── skill-junction-creator/      # 本仓库
-├── project-structure-tracker/   # 您的其他自定义技能
 └── my-new-awesome-skill/        # 您的其他自定义技能
 ```
 
 ### 2. 配置 Agent 路径 (`agent-cache.json`)
-根据您电脑上已安装的 AI Agent，在 `agent-cache.json` 中配置或确认它们的技能扫描路径：
+根据您电脑上已安装的 AI Agent，在 `agent-cache.json` 中配置或确认它们的技能扫描路径（使用您的AI Agent来帮您）：
+
+例如：
 ```json
 {
   "known_agents": {
@@ -62,7 +65,7 @@ D:\AI_Workspace\SKILL/
 ```
 
 ### 3. 让您的 Agent 加载本技能
-为了让 Agent 能够“学会”自动同步，需要手动为本技能创建第一个 Junction（或者直接把本技能复制到 Agent 的技能目录下）：
+为了让 Agent 能够“学会”自动同步，需要手动为本技能创建第一个 Junction（建议直接把本技能复制到 Agent 的技能目录下，让Agent帮您操作）：
 
 **以 Antigravity 为例 (以管理员权限运行 PowerShell)：**
 ```powershell
