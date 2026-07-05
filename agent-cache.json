@@ -1,0 +1,60 @@
+{
+  "last_scan": "2026-07-06T00:10:00+08:00",
+  "known_agents": {
+    "QoderWork": {
+      "skill_dir": "C:/Users/<YOUR_WINDOWS_USERNAME>/.qoderworkcn/skills",
+      "type": "directory",
+      "compatible": true,
+      "confirmed_at": "2026-07-05T23:50:00+08:00"
+    },
+    "WorkBuddy": {
+      "skill_dir": "C:/Users/<YOUR_WINDOWS_USERNAME>/.workbuddy/skills",
+      "type": "directory",
+      "compatible": true,
+      "note": "与 QoderWork 相同 SKILL.md 格式，已有 pptx/self-evolution-v2 等 skill",
+      "confirmed_at": "2026-07-06T00:10:00+08:00"
+    },
+    "Marvis": {
+      "skill_dir": "C:/Users/<YOUR_WINDOWS_USERNAME>/AppData/Roaming/Tencent/Marvis/User/default_user/skills/custom",
+      "type": "directory",
+      "compatible": true,
+      "note": "custom 子目录用于用户自定义 skill，market 用于市场 skill",
+      "confirmed_at": "2026-07-06T00:10:00+08:00"
+    },
+    "Copilot": {
+      "skill_dir": "C:/Users/<YOUR_WINDOWS_USERNAME>/.copilot",
+      "type": "directory",
+      "compatible": true,
+      "confirmed_at": "2026-07-05T23:50:00+08:00"
+    },
+    "Cline": {
+      "skill_dir": "C:/Users/<YOUR_WINDOWS_USERNAME>/.cline",
+      "type": "data-only",
+      "compatible": false,
+      "note": "数据目录（含 workspaces/secrets），非 skill 系统；自定义指令走项目级 .clinerules",
+      "confirmed_at": "2026-07-05T23:50:00+08:00"
+    },
+    "VSCode": {
+      "skill_dir": "C:/Users/<YOUR_WINDOWS_USERNAME>/AppData/Roaming/Code/User/globalStorage",
+      "type": "extension-storage",
+      "compatible": false,
+      "note": "VSCode 扩展存储目录，非 skill 系统",
+      "confirmed_at": "2026-07-05T23:50:00+08:00"
+    },
+    "Antigravity": {
+      "skill_dir": "C:/Users/<YOUR_WINDOWS_USERNAME>/.gemini/config/skills",
+      "type": "directory",
+      "compatible": true,
+      "note": "实际 skill 目录为 .gemini/config/skills（非 .antigravity），已验证 junction 可用",
+      "confirmed_at": "2026-07-06T01:30:00+08:00"
+    },
+    "Doubao": {
+      "skill_dir": "C:/Users/<YOUR_WINDOWS_USERNAME>/.doubao",
+      "type": "data-only",
+      "compatible": false,
+      "note": "聊天型 AI，仅有 chats 目录，无 skill 系统",
+      "confirmed_at": "2026-07-06T00:10:00+08:00"
+    }
+  },
+  "pending_agents": []
+}
