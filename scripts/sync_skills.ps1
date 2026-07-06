@@ -13,9 +13,26 @@ if (-not (Test-Path $CacheFile)) {
 $Cache = Get-Content $CacheFile -Raw | ConvertFrom-Json
 $KnownAgents = $Cache.known_agents
 
-# 2. 获取源目录下所有的自定义 Skill 文件夹名
+# 2. 获取源目录下所有的顶层 Skill 文件夹
 $SourceSkills = Get-ChildItem -Path $SourceDir -Directory | Where-Object { $_.Name -ne ".git" }
-$SourceSkillNames = $SourceSkills.Name
+$SourceSkillNames = [System.Collections.ArrayList]@($SourceSkills.Name)
+
+# 3. 发现各顶层 Skill 内部的子 Skill（含 SKILL.md 的子目录，排除 scripts 等工具目录）
+$SubSkills = @()
+foreach ($Skill in $SourceSkills) {
+    $subDirs = Get-ChildItem -Path $Skill.FullName -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -ne "scripts" -and (Test-Path (Join-Path $_.FullName "SKILL.md")) }
+    foreach ($sub in $subDirs) {
+        $SubSkills += [PSCustomObject]@{
+            Name     = $sub.Name
+            FullName = $sub.FullName
+            Parent   = $Skill.Name
+        }
+        if ($SourceSkillNames -notcontains $sub.Name) {
+            [void]$SourceSkillNames.Add($sub.Name)
+        }
+    }
+}
 
 Write-Host "### 🔄 Skill 同步报告"
 Write-Host "源仓库: ``$SourceDir``"
@@ -47,20 +64,36 @@ foreach ($AgentName in $KnownAgents.PSObject.Properties.Name) {
     # 记录该 Agent 下所有 Skill 的同步状态
     $StatusList = @()
 
-    # 3. 增量创建：源目录有，但目标目录没有的
+    # 4. 增量创建：顶层 Skill（源目录有，但目标目录没有的）
+    $CreatedNames = @()
     foreach ($Skill in $SourceSkills) {
         $TargetPath = Join-Path $TargetDir $Skill.Name
         if (-not (Test-Path $TargetPath)) {
             try {
                 New-Item -ItemType Junction -Path $TargetPath -Value $Skill.FullName -ErrorAction Stop | Out-Null
                 $StatusList += "- 🟢 **[新增]** **$($Skill.Name)**: 联接创建成功"
+                $CreatedNames += $Skill.Name
             } catch {
                 $StatusList += "- 🔴 **[新增]** **$($Skill.Name)**: 联接创建失败 ($($_.Exception.Message))"
             }
         }
     }
 
-    # 4. 清理已删除的 Skill：目标目录有（且是 Junction/重解析点），但源目录已经没有了
+    # 5. 增量创建：子 Skill（父 Skill 内部的独立子 skill）
+    foreach ($Sub in $SubSkills) {
+        $TargetPath = Join-Path $TargetDir $Sub.Name
+        if (-not (Test-Path $TargetPath)) {
+            try {
+                New-Item -ItemType Junction -Path $TargetPath -Value $Sub.FullName -ErrorAction Stop | Out-Null
+                $StatusList += "- 🟢 **[新增]** **$($Sub.Name)** (子 skill ← $($Sub.Parent)): 联接创建成功"
+                $CreatedNames += $Sub.Name
+            } catch {
+                $StatusList += "- 🔴 **[新增]** **$($Sub.Name)** (子 skill ← $($Sub.Parent)): 联接创建失败 ($($_.Exception.Message))"
+            }
+        }
+    }
+
+    # 6. 清理已删除的 Skill：目标目录有（且是 Junction/重解析点），但源目录已经没有了
     foreach ($Item in $TargetItems) {
         # 确保只清理不是源目录 Skill 的项，且必须是 Link 或 ReparsePoint (防止误删用户自己创建的普通目录)
         if ($SourceSkillNames -notcontains $Item.Name) {
@@ -76,8 +109,9 @@ foreach ($AgentName in $KnownAgents.PSObject.Properties.Name) {
         }
     }
 
-    # 5. 保留未改变的 Skill：源目录有且目标目录已存在的
+    # 7. 保留未改变的 Skill：源目录有且目标目录已存在的（跳过本次新创建的，避免重复报告）
     foreach ($SkillName in $SourceSkillNames) {
+        if ($CreatedNames -contains $SkillName) { continue }
         $TargetPath = Join-Path $TargetDir $SkillName
         if (Test-Path $TargetPath) {
             # 再次检查是否为 Junction 且指向正确

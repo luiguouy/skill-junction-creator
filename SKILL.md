@@ -20,6 +20,13 @@ version: 2.0.0
   - 记录所有已知 Agent 的 skill 路径、类型、兼容性
   - 字段：`skill_dir`（路径）、`type`（directory/data-only/file-based/extension-storage）、`compatible`（bool）、`note`（可选说明）
 
+## 子 Skill 路径
+
+| 子 Skill | 路径 |
+|----------|------|
+| sjc-sync | `D:\AI_Workspace\SKILL\skill-junction-creator\sjc-sync\SKILL.md` |
+| sjc-scanner | `D:\AI_Workspace\SKILL\skill-junction-creator\sjc-scanner\SKILL.md` |
+
 ## 命令分发
 
 | 用户指令 | 调用子 Skill | 说明 |

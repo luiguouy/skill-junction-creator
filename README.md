@@ -18,16 +18,16 @@
 ## 📂 项目结构
 ```text
 D:\AI_Workspace\SKILL/
-├── skill-junction-creator/          # 本仓库（路由入口）
+├── skill-junction-creator/          # 本仓库（路由入口 + 子 skill 宿主）
 │   ├── SKILL.md                     # 路由入口：命令分发与共享资源说明
 │   ├── agent-cache.json             # 记录和配置各 Agent 的技能目录路径与兼容状态
 │   ├── README.md                    # 本说明文档
-│   └── scripts/
-│       └── sync_skills.ps1          # 自动扫描与创建 Junction 的 PowerShell 脚本
-├── sjc-sync/                        # 子 skill：Junction 增量同步
-│   └── SKILL.md                     # 同步执行指令
-├── sjc-scanner/                     # 子 skill：智能 Agent 扫描
-│   └── SKILL.md                     # 三阶段智能推断扫描逻辑
+│   ├── scripts/
+│   │   └── sync_skills.ps1          # 自动扫描与创建 Junction 的 PowerShell 脚本
+│   ├── sjc-sync/                    # 子 skill：Junction 增量同步
+│   │   └── SKILL.md                 # 同步执行指令
+│   └── sjc-scanner/                 # 子 skill：智能 Agent 扫描
+│       └── SKILL.md                 # 三阶段智能推断扫描逻辑
 ├── project-structure-tracker/       # 您的其他自定义技能
 └── my-new-awesome-skill/            # 您的其他自定义技能
 ```
@@ -36,15 +36,18 @@ D:\AI_Workspace\SKILL/
 
 ## 🧩 模块化设计
 
-本工具采用 **路由 + 子 skill** 的模块化架构：
+本工具采用 **路由 + 子 skill** 的模块化架构，所有子 skill 均位于 `skill-junction-creator` 文件夹内部：
 
-| 模块 | 职责 | 何时加载 |
-|------|------|----------|
-| **skill-junction-creator** | 路由入口，命令分发，缓存查看 | 用户提及"同步""扫描""junction"等关键词时 |
-| **sjc-sync** | 执行 junction 增量同步 | 用户说"同步 skill""创建 junction"时 |
-| **sjc-scanner** | 三阶段智能扫描，发现新 Agent | 用户说"扫描 Agent""发现新 Agent""重新扫描"时 |
+| 模块 | 路径 | 职责 | 何时加载 |
+|------|------|------|----------|
+| **skill-junction-creator** | `skill-junction-creator/SKILL.md` | 路由入口，命令分发，缓存查看 | 用户提及"同步""扫描""junction"等关键词时 |
+| **sjc-sync** | `skill-junction-creator/sjc-sync/SKILL.md` | 执行 junction 增量同步 | 用户说"同步 skill""创建 junction"时 |
+| **sjc-scanner** | `skill-junction-creator/sjc-scanner/SKILL.md` | 三阶段智能扫描，发现新 Agent | 用户说"扫描 Agent""发现新 Agent""重新扫描"时 |
 
-这样设计的好处是：日常最常用的"同步"操作只需加载路由 + sjc-sync（约 79 行），而非完整加载全部 250+ 行逻辑，显著节省 Token 消耗。
+这样设计的好处是：
+1. **统一管理**：所有相关组件集中在一个文件夹内，结构清晰
+2. **极致省 Token**：日常最常用的"同步"操作只需加载路由 + sjc-sync（约 79 行），而非完整加载全部 250+ 行逻辑
+3. **同步脚本自动识别**：`sync_skills.ps1` 会自动发现父 skill 内部的子 skill 目录，并为它们也创建 Junction
 
 ---
 
@@ -54,9 +57,7 @@ D:\AI_Workspace\SKILL/
 在您的电脑上创建一个统一存放 Skill 的文件夹（例如 `D:\AI_Workspace\SKILL`），并在此文件夹下放置您的各个自定义技能：
 ```text
 D:\AI_Workspace\SKILL/
-├── skill-junction-creator/      # 本仓库
-├── sjc-sync/                    # 子 skill：同步
-├── sjc-scanner/                 # 子 skill：扫描
+├── skill-junction-creator/      # 本仓库（含子 skill）
 ├── project-structure-tracker/   # 您的其他自定义技能
 └── my-new-awesome-skill/        # 您的其他自定义技能
 ```
@@ -98,9 +99,11 @@ D:\AI_Workspace\SKILL/
 **以 Antigravity 为例 (以管理员权限运行 PowerShell)：**
 ```powershell
 New-Item -ItemType Junction -Path "C:\Users\您的用户名\.gemini\config\skills\skill-junction-creator" -Value "D:\AI_Workspace\SKILL\skill-junction-creator"
-New-Item -ItemType Junction -Path "C:\Users\您的用户名\.gemini\config\skills\sjc-sync" -Value "D:\AI_Workspace\SKILL\sjc-sync"
-New-Item -ItemType Junction -Path "C:\Users\您的用户名\.gemini\config\skills\sjc-scanner" -Value "D:\AI_Workspace\SKILL\sjc-scanner"
+New-Item -ItemType Junction -Path "C:\Users\您的用户名\.gemini\config\skills\sjc-sync" -Value "D:\AI_Workspace\SKILL\skill-junction-creator\sjc-sync"
+New-Item -ItemType Junction -Path "C:\Users\您的用户名\.gemini\config\skills\sjc-scanner" -Value "D:\AI_Workspace\SKILL\skill-junction-creator\sjc-scanner"
 ```
+
+> 💡 **提示**：您也可以直接运行 `sync_skills.ps1` 脚本，它会自动为所有兼容 Agent 创建包括子 skill 在内的全部 Junction。
 
 ---
 
